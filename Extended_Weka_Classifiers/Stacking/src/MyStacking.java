@@ -1,4 +1,4 @@
-
+package MLProject;
 import java.util.Random;
 
 import weka.classifiers.Classifier;
@@ -6,6 +6,7 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.meta.Stacking;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.Range;
 
 
 public class MyStacking extends Stacking{
@@ -21,23 +22,25 @@ public class MyStacking extends Stacking{
 		
 	    if (m_MetaClassifier == null) {
 		      throw new IllegalArgumentException("No meta classifier has been set");
-		    }
+		 }
 	    
 	    
 	    m_BaseFormat = new Instances(data[0], 0);
-	    Random random = new Random(m_Seed);
+	    //Random random = new Random(m_Seed);
 	    Instances[] newData = new Instances[data.length];
 	    for (int i = 0; i < data.length; i++) {
 		    newData[i] = new Instances(data[i]);
 		    newData[i].deleteWithMissingClass();
-		    newData[i].randomize(random);
+		    //make sure each instance set is shuffled in the same order
+		    newData[i].randomize(new Random(m_Seed));
 		    if (newData[i].classAttribute().isNominal()) {
 			      newData[i].stratify(m_NumFolds);
 		    }
 		}
 
 	    // Create meta level
-	    generateMetaLevel(newData, random);
+	    generateMetaLevel(newData, new Random(m_Seed));
+	    m_MetaClassifier.buildClassifier(m_MetaData);
 
 	}
 	
@@ -76,26 +79,49 @@ public class MyStacking extends Stacking{
 	  }
 		
 		public Evaluation testInstances(Instances[] test) throws Exception{
-			
 			Instances metaData = metaFormat(test[0]);
 			for (int i = 0; i < test[0].numInstances(); i++) {
-	    	  	Instance[] newTestArray = new Instance[test.length];
-	    	  	for (int k = 0; k < newTestArray.length; k++) {
+				Instance[] newTestArray = new Instance[test.length];
+				for (int k = 0; k < newTestArray.length; k++) {
 					newTestArray[k] = test[k].instance(i);
+				}
+				Instance newMetaInstance = metaInstance(newTestArray);
+				metaData.add(newMetaInstance);
 			}
-	    	  	Instance newMetaInstance = metaInstance(newTestArray);
-	    	  	metaData.add(newMetaInstance);
-			}
-			m_MetaClassifier.buildClassifier(m_MetaData);
+			
+			//m_MetaClassifier.buildClassifier(m_MetaData);
 			Evaluation eval = new Evaluation(m_MetaData);
 			eval.evaluateModel(m_MetaClassifier, metaData);
 			return eval;
 		}
 	
-	  public Evaluation crossValidateMetaClassifier(Random random) throws Exception{
-		    Evaluation eval = new Evaluation (m_MetaData);
-		    eval.crossValidateModel(m_MetaClassifier, m_MetaData, 10, random);
-		    return eval;
+	  public Evaluation[] crossValidateMetaClassifier(int numFolds, Random random) throws Exception{
+		    
+		  return crossValidateModel(m_MetaClassifier, m_MetaData, numFolds, random);
+	  }
+	  
+	  //The following code is taken from the Evaluation class in Weka
+	  public Evaluation[] crossValidateModel(Classifier classifier, Instances data, int numFolds, Random random)
+			    throws Exception {
+
+			    // Make a copy of the data we can reorder
+			    data = new Instances(data);
+			    data.randomize(random);
+			    if (data.classAttribute().isNominal()) {
+			      data.stratify(numFolds);
+			    }
+			    Evaluation[] returnEvals = new Evaluation [numFolds];
+
+			    for (int i = 0; i < numFolds; i++) {
+			      Instances train = data.trainCV(numFolds, i, random);
+			      Evaluation eval = new Evaluation(train);
+			      Classifier copiedClassifier = Classifier.makeCopy(classifier);
+			      copiedClassifier.buildClassifier(train);
+			      Instances test = data.testCV(numFolds, i);
+			      double[] predictions = eval.evaluateModel(copiedClassifier, test);
+			      returnEvals[i] = eval;
+			    }
+			    return returnEvals;
 	  }
 	  
 	  protected Instance metaInstance(Instance[] instance) throws Exception {
@@ -108,10 +134,10 @@ public class MyStacking extends Stacking{
 		      if (m_BaseFormat.classAttribute().isNumeric()) {
 		    	  values[i++] = classifier.classifyInstance(instance[k]);
 		      } else {
-			double[] dist = classifier.distributionForInstance(instance[k]);
-			for (int j = 0; j < dist.length; j++) {
-			  values[i++] = dist[j];
-			}
+		    	  double[] dist = classifier.distributionForInstance(instance[k]);
+		    	  for (int j = 0; j < dist.length; j++) {
+		    		  values[i++] = dist[j];
+		    	  }
 		      }
 		    }
 		    values[i] = instance[0].classValue();

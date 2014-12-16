@@ -22,23 +22,24 @@ public class MyStacking extends Stacking{
 		
 	    if (m_MetaClassifier == null) {
 		      throw new IllegalArgumentException("No meta classifier has been set");
-		    }
+		 }
 	    
 	    
 	    m_BaseFormat = new Instances(data[0], 0);
-	    Random random = new Random(m_Seed);
+	    //Random random = new Random(m_Seed);
 	    Instances[] newData = new Instances[data.length];
 	    for (int i = 0; i < data.length; i++) {
 		    newData[i] = new Instances(data[i]);
 		    newData[i].deleteWithMissingClass();
-		    newData[i].randomize(random);
+		    //make sure each instance set is shuffled in the same order
+		    newData[i].randomize(new Random(m_Seed));
 		    if (newData[i].classAttribute().isNominal()) {
 			      newData[i].stratify(m_NumFolds);
 		    }
 		}
 
 	    // Create meta level
-	    generateMetaLevel(newData, random);
+	    generateMetaLevel(newData, new Random(m_Seed));
 	    m_MetaClassifier.buildClassifier(m_MetaData);
 
 	}
