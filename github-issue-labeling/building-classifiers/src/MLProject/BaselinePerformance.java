@@ -20,7 +20,7 @@ public class BaselinePerformance {
 	public static void main(String[] args) throws Exception {
 		
 		//Load the column features data
-		DataSource source1 = new DataSource("CV_stack_column_features-all.arff");
+		DataSource source1 = new DataSource("CV_Not_Boolean.arff");
 		Instances columnFeatureInstances1 = source1.getDataSet();
 		
 		columnFeatureInstances1.setClassIndex(columnFeatureInstances1.numAttributes()-1);

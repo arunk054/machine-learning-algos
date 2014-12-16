@@ -20,14 +20,14 @@ public class EvaluateFinalTestSet {
 	public static void main(String[] args) throws Exception {
 		
 		//Load the column features data
-		DataSource source1 = new DataSource("CV_Stack_column_features-boolean.arff");
+		DataSource source1 = new DataSource("CV_Boolean.arff");
 		Instances columnFeatureInstances1 = source1.getDataSet();
 		
 		columnFeatureInstances1.setClassIndex(columnFeatureInstances1.numAttributes()-1);
 		System.out.println("Column features: "+columnFeatureInstances1.numAttributes());
 		System.out.println("Column features - Instances: "+columnFeatureInstances1.numInstances());
 
-		DataSource source2 = new DataSource("CV_stack_column_features-all.arff");
+		DataSource source2 = new DataSource("CV_Not_Boolean.arff");
 		Instances columnFeatureInstances2 = source2.getDataSet();
 		System.out.println("Column features: "+columnFeatureInstances2.numAttributes());
 		System.out.println("Column features - Instances: "+columnFeatureInstances2.numInstances());
@@ -42,7 +42,7 @@ public class EvaluateFinalTestSet {
 		
 		//Load the text features data
 		
-		source1 = new DataSource("CV_Stack_text_features.arff");
+		source1 = new DataSource("CV_Text.arff");
 		Instances textFeatureInstances = source1.getDataSet();
 		
 		textFeatureInstances.setClassIndex(textFeatureInstances.numAttributes()-1);
@@ -51,15 +51,6 @@ public class EvaluateFinalTestSet {
 		
 		NaiveBayes nbClassifier = new NaiveBayes();
 		
-		DataSource testSource1 = new DataSource("Test_Stack_column_features-boolean.arff");
-		Instances testInstances1 = testSource1.getDataSet();
-		testInstances1.setClassIndex(testInstances1.numAttributes()-1);
-		
-		stack1Classifier.buildClassifier(columnFeatureInstances1);
-		Evaluation eval = new Evaluation (columnFeatureInstances1);
-		eval.evaluateModel(stack1Classifier, testInstances1);
-		System.out.println(eval.toSummaryString());
-		/*
 		//Meta data classifier try J48 or JRip
 		
 		JRip metaClassifier = new JRip();
@@ -79,7 +70,7 @@ public class EvaluateFinalTestSet {
 		
 		//Get the test data
 
-		DataSource testSource1 = new DataSource("Test_Stack_column_features-boolean.arff");
+		DataSource testSource1 = new DataSource("Test_Boolean.arff");
 		Instances testInstances1 = testSource1.getDataSet();
 		
 		testInstances1.setClassIndex(testInstances1.numAttributes()-1);
@@ -87,14 +78,14 @@ public class EvaluateFinalTestSet {
 		System.out.println("Column features - Instances: "+testInstances1.numInstances());
 
 
-		DataSource testSource2 = new DataSource("Test_Stack_column_features-all.arff");
+		DataSource testSource2 = new DataSource("Test_Not_Boolean.arff");
 		Instances testInstances2 = testSource2.getDataSet();
 		
 		testInstances2.setClassIndex(testInstances2.numAttributes()-1);
 		System.out.println("Column features: "+testInstances2.numAttributes());
 		System.out.println("Column features - Instances: "+testInstances2.numInstances());
 		
-		DataSource testSource3 = new DataSource("Test_Stack_text_features.arff");
+		DataSource testSource3 = new DataSource("Test_Text.arff");
 		Instances testInstances3 = testSource3.getDataSet();
 		
 		testInstances3.setClassIndex(testInstances3.numAttributes()-1);
@@ -105,7 +96,7 @@ public class EvaluateFinalTestSet {
 
 		Evaluation testEval = stackingClassifier.testInstances(tData);
 		System.out.println(testEval.toSummaryString());
-		*/
+		
 	}
 	private static double round(double d, int i) {
 		double val = (d * Math.pow(10, i));

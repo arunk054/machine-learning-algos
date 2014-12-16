@@ -20,14 +20,14 @@ public class MyStackedClassifier {
 	public static void main(String[] args) throws Exception {
 		
 		//Load the column features data
-		DataSource source1 = new DataSource("CV_Stack_column_features-boolean.arff");
+		DataSource source1 = new DataSource("CV_Boolean.arff");
 		Instances columnFeatureInstances1 = source1.getDataSet();
 		
 		columnFeatureInstances1.setClassIndex(columnFeatureInstances1.numAttributes()-1);
 		System.out.println("Column features: "+columnFeatureInstances1.numAttributes());
 		System.out.println("Column features - Instances: "+columnFeatureInstances1.numInstances());
 
-		DataSource source2 = new DataSource("CV_stack_column_features-all.arff");
+		DataSource source2 = new DataSource("CV_Not_Boolean.arff");
 		Instances columnFeatureInstances2 = source2.getDataSet();
 		System.out.println("Column features: "+columnFeatureInstances2.numAttributes());
 		System.out.println("Column features - Instances: "+columnFeatureInstances2.numInstances());
@@ -42,7 +42,7 @@ public class MyStackedClassifier {
 		
 		//Load the text features data
 		
-		source1 = new DataSource("CV_Stack_text_features.arff");
+		source1 = new DataSource("CV_Text.arff");
 		Instances textFeatureInstances = source1.getDataSet();
 		
 		textFeatureInstances.setClassIndex(textFeatureInstances.numAttributes()-1);
